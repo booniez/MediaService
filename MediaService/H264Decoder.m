@@ -152,11 +152,13 @@ static void decodeOutputDataCallback(void *decompressionOutputRefCon, void *sour
     frame[1] = *(pNalSize + 2);
     frame[2] = *(pNalSize + 1);
     frame[3] = *(pNalSize);
-    
+
+//    NSLog(@"%@", [NSString stringWithFormat:@"the size is:%d", frameSize]);
+//    NSLog(@"%@", [NSString stringWithFormat:@"the row is:%s", frame]);
     switch (nalu_type)
     {
         case 0x05: // I帧
-            NSLog(@"NALU type is IDR frame");
+//            NSLog(@"NALU type is IDR frame");
             if([self initH264Decoder])
             {
                 [self decode:frame withSize:frameSize];
@@ -165,20 +167,22 @@ static void decodeOutputDataCallback(void *decompressionOutputRefCon, void *sour
             break;
         case 0x07: // SPS
             NSLog(@"NALU type is SPS frame");
+            NSLog(@"%@", [NSString stringWithFormat:@"the size is:%d", frameSize]);
+            NSLog(@"%@", [NSString stringWithFormat:@"the row is:%s", frame]);
             _spsSize = frameSize - 4;
             _sps = malloc(_spsSize);
             memcpy(_sps, &frame[4], _spsSize);
             
             break;
         case 0x08: // PPS
-            NSLog(@"NALU type is PPS frame");
+//            NSLog(@"NALU type is PPS frame");
             _ppsSize = frameSize - 4;
             _pps = malloc(_ppsSize);
             memcpy(_pps, &frame[4], _ppsSize);
             break;
             
         default: // B帧或P帧
-            NSLog(@"NALU type is B/P frame");
+//            NSLog(@"NALU type is B/P frame");
             if([self initH264Decoder])
             {
                 [self decode:frame withSize:frameSize];

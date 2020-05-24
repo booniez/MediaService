@@ -20,6 +20,10 @@
 /** 视频流播放器 */
 #ifdef USED_METAL
 @property (nonatomic, strong) MetalPlayer *playLayer;
+@property (nonatomic, strong) UIImageView *img;
+@property (nonatomic, strong) UIImage *row_img;
+@property (nonatomic, strong) NSData *row_img_data;
+@property (nonatomic, strong) NSMutableData *buffer;
 #else
 @property (nonatomic, strong) VPVideoStreamPlayLayer *playLayer;
 #endif
@@ -99,6 +103,12 @@
     [revertCameraButton addTarget:self action:@selector(revertCameraButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:revertCameraButton];
     [self configSocket];
+
+    _img = [[UIImageView alloc]initWithFrame:CGRectMake(buttonMargin,buttonY+60, 400, 300)];
+    _buffer = [[NSMutableData alloc]init];
+//    [_img setBackgroundColor:[UIColor redColor]];
+    [self.view addSubview:_img];
+
 }
 
 - (void)configSocket {
@@ -156,11 +166,11 @@
 //        str = [NSString stringWithFormat:@"%@", "|"];
 //        NSData *da = [str dataUsingEncoding:NSUTF8StringEncoding];
 //    NSDictionary
-        [connectSocket writeData:data withTimeout:-1 tag:0];
-    NSString *msg = @"|#|";
-    NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
-    [connectSocket writeData:msgData withTimeout:-1 tag:0];
-        NSLog(@"上报");
+//        [connectSocket writeData:data withTimeout:-1 tag:0];
+//    NSString *msg = @"|#|";
+//    NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
+//    [connectSocket writeData:msgData withTimeout:-1 tag:0];
+//        NSLog(@"上报");
 //    }
 //    [self.h264Decoder decodeNaluData:data];
 //    [connectSocket readDataWithTimeout:-1 tag:0];
@@ -193,16 +203,77 @@
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag{
-//    NSLog(@"接收到tag = %ld : %ld 长度的数据",tag,data.length);
-//    NSLog(@"接受到的数据内容为：%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-//
-//    //连接成功或者收到消息，必须开始read，否则将无法收到消息
-//    //不read的话，缓存区将会被关闭
-//    // -1 表示无限时长 ， tag
-//    for ( GCDAsyncSocket *socket in connectedSockets ) {
-//        [socket readDataWithTimeout:-1 tag:0];
-//    }
     [connectSocket readDataWithTimeout:-1 tag:0];
-    [self.h264Decoder decodeNaluData:data];
+    NSMutableData *tmp_data = NULL;
+    NSMutableData *input_data = [data copy];
+
+    NSString *end_flag = @"|#|";
+    end_flag = [NSString stringWithFormat:@"%@",[end_flag dataUsingEncoding: NSUTF8StringEncoding]];
+    end_flag = [end_flag substringToIndex:end_flag.length-1];
+    end_flag = [end_flag substringFromIndex:1];
+    end_flag = [end_flag componentsSeparatedByString:@"="][2];
+    end_flag = [end_flag substringFromIndex:3];
+
+    NSString *str_data=[NSString stringWithFormat:@"%@",data];
+    str_data=[str_data stringByReplacingOccurrencesOfString:@" " withString:@""];
+    str_data=[str_data lowercaseString];
+    str_data=[str_data substringToIndex:str_data.length-1];
+    str_data=[str_data substringFromIndex:1];
+    str_data=[str_data componentsSeparatedByString:@"="][2];
+    str_data=[str_data substringFromIndex:2];
+
+    char *the_data = (char *)malloc(sizeof(char) * data.length);
+    the_data = (char *)data.bytes;
+
+
+    if ([str_data containsString:end_flag]) {
+        char *location = the_data;
+        int lenth = 0;
+
+        while (location != '\0' && location != NULL) {
+            if (*location == '|' && *(location+1) == '#' && *(location+2) == '|') {
+                break;
+            }
+            lenth += 1;
+            location ++;
+        }
+
+        if (sizeof(the_data) == 3) {
+            tmp_data = [_buffer copy];
+            [_buffer setData:[[NSData alloc]init]];
+
+        }
+
+        [_buffer appendData:[input_data subdataWithRange:NSMakeRange(0, lenth)]];
+        tmp_data = [_buffer copy];
+        if (input_data.length - lenth == 3){
+             [_buffer setData:[[NSData alloc]init]];
+        }else{
+            _buffer = [[input_data subdataWithRange:NSMakeRange(lenth + 3, data.length - lenth - 3)] copy];
+        }
+    }else{
+        [_buffer appendData:data];
+        tmp_data = NULL;
+    }
+
+    if (tmp_data != NULL) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            int flag = 0;
+            @try {
+                [self->_img setImage:[UIImage imageWithData:tmp_data]];
+            } @catch (NSException *exception) {
+                flag = 1;
+                NSLog(@"error");
+            } @finally {
+                if (flag) {
+                    NSLog(@"error2");
+                }
+            }
+
+        });
+    }
+
+//    [self.h264Decoder decodeNaluData:data];
 }
+
 @end

@@ -412,7 +412,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = BJ7BRNYAMU;
+				DEVELOPMENT_TEAM = 5QYT88N3Y9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MediaService/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -427,7 +427,7 @@
 					"$(PROJECT_DIR)/MediaService/3th-party/librtmp/lib",
 					"$(PROJECT_DIR)/MediaService/3th-party/libyuv/lib",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.jlm.MediaService;
+				PRODUCT_BUNDLE_IDENTIFIER = MediaService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -438,7 +438,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = BJ7BRNYAMU;
+				DEVELOPMENT_TEAM = 5QYT88N3Y9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = MediaService/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -453,7 +453,7 @@
 					"$(PROJECT_DIR)/MediaService/3th-party/librtmp/lib",
 					"$(PROJECT_DIR)/MediaService/3th-party/libyuv/lib",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.chenjiannan.MediaService;
+				PRODUCT_BUNDLE_IDENTIFIER = MediaService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
